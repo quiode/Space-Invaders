@@ -2,6 +2,14 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  -webkit-user-select: none;
+  /* Safari */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* IE10+/Edge */
+  user-select: none;
+  /* Standard */
 }
 
 body {
@@ -22,6 +30,9 @@ header {
   transition-duration: 5s;
   opacity: 0;
   z-index: 5;
+}
+header span {
+  cursor: pointer;
 }
 
 canvas {

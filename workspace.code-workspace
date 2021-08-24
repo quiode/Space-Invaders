@@ -28,7 +28,7 @@
       {
         "label": "tsc",
         "type": "shell",
-        "command": "tsc --watch script.ts",
+        "command": "tsc --watch",
         "presentation": {
           "echo": true,
           "reveal": "always",

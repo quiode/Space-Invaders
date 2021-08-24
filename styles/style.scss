@@ -1,7 +1,16 @@
+// Mixins
+@mixin user-select($value) {
+  -webkit-user-select: $value; /* Safari */
+  -moz-user-select: $value; /* Firefox */
+  -ms-user-select: $value; /* IE10+/Edge */
+  user-select: $value; /* Standard */
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  @include user-select(none);
 }
 
 body {
@@ -22,6 +31,10 @@ header {
   transition-duration: 5s;
   opacity: 0;
   z-index: 5;
+
+  span {
+    cursor: pointer;
+  }
 }
 
 canvas {
