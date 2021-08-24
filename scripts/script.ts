@@ -31,9 +31,7 @@ class Shot {
 class Game {
   private context = this.canvas.getContext('2d');
   private background_img = new Image();
-  constructor(private canvas: HTMLCanvasElement) {
-    this.background_img.src = 'assets/background.png';
-  }
+  constructor(private canvas: HTMLCanvasElement) {}
 
   load_game() {
     this.create_background();
@@ -46,7 +44,10 @@ class Game {
   create_enemies() {}
 
   create_background() {
-    this.context?.drawImage(this.background_img, 0, 0);
+    this.background_img.onload = () => {
+      this.context?.drawImage(this.background_img, 0, 0, this.canvas.width, this.canvas.height);
+    };
+    this.background_img.src = 'assets/background.jpg';
   }
 
   clear() {
@@ -61,18 +62,14 @@ window.addEventListener('load', () => {
   title_header.style.opacity = '1';
   title_header.style.transitionDuration = transition_time + 's';
 
-  // Let's the player start the game after the title screen has loaded
-  setTimeout(() => {
-    (document.getElementsByTagName('canvas')[0] as HTMLCanvasElement).addEventListener(
-      'click',
-      load_game
-    );
-  }, transition_time * 1000);
+  // Let's the player start the game witch a click
+  (document.getElementsByTagName('header')[0] as HTMLCanvasElement).addEventListener(
+    'click',
+    load_game
+  );
 });
 
-/**
- * @description Starts the Game
- */
+// Loads the game
 function load_game() {
   // Removes the title screen
   let title_header = document.getElementsByTagName('header')[0] as unknown as HTMLHeadingElement;
