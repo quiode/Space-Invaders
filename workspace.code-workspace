@@ -4,5 +4,44 @@
       "path": "."
     }
   ],
-  "settings": {}
+  "settings": {},
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "sass",
+        "type": "shell",
+        "command": "sass --watch style.scss:style.css",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "dedicated",
+          "showReuseMessage": true,
+          "clear": true
+        },
+        "options": {
+          "cwd": "./styles"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "tsc",
+        "type": "shell",
+        "command": "tsc --watch script.ts",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "dedicated",
+          "showReuseMessage": true,
+          "clear": true
+        },
+        "options": {
+          "cwd": "./scripts"
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
 }
