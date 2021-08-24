@@ -1,7 +1,37 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
 body {
   background-color: black;
   color: white;
   text-align: center;
+}
+
+header {
+  font-size: 10vmin;
+  text-decoration: dotted underline;
+  position: fixed;
+  top: 50vh;
+  left: 50vw;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  transition-property: opacity, display;
+  transition-duration: 5s;
+  opacity: 0;
+  z-index: 5;
+}
+
+canvas {
+  position: fixed;
+  z-index: 4;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  top: 50vh;
+  left: 50vw;
 }
 
 /*# sourceMappingURL=style.css.map */
