@@ -72,7 +72,7 @@ var Player = /** @class */ (function () {
             }
         }
     };
-    Player.shootingSpead = 60 * 1; // in frames
+    Player.shootingSpead = 60 * 0.75; // in frames
     return Player;
 }());
 var Enemy = /** @class */ (function () {
@@ -146,7 +146,15 @@ var Shot = /** @class */ (function () {
                 _this.position.y >= enemy.position.y &&
                 _this.position.y <= enemy.position.y + enemy.size) {
                 collided = true;
-                enemy.health -= 10 * (maxWaves / wave);
+                if (wave <= maxWaves / 3) {
+                    enemy.health -= 101;
+                }
+                else if (wave <= (maxWaves / 3) * 2) {
+                    enemy.health -= 51;
+                }
+                else {
+                    enemy.health -= 34;
+                }
                 if (enemy.health <= 0) {
                     enemies.splice(enemies.indexOf(enemy), 1);
                     if (wave == maxWaves && enemies.length === 0) {
@@ -181,7 +189,7 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.start_game = function () {
         var _this = this;
-        var waves = 10;
+        var waves = 6;
         var wave = 1;
         var spawn_rate = 60 * 15; // in framess
         var spawn_rate_counter = 0;
@@ -191,7 +199,7 @@ var Game = /** @class */ (function () {
             _this.clear();
             // Spawns enemies
             if (spawn_rate_counter >= spawn_rate) {
-                if (wave <= waves) {
+                if (wave < waves) {
                     _this.create_enemies();
                     wave++;
                     spawn_rate_counter = 0;
@@ -247,14 +255,12 @@ var Game = /** @class */ (function () {
         (_a = this.context) === null || _a === void 0 ? void 0 : _a.clearRect(0, 0, this.canvas.width, this.canvas.height);
     };
     Game.prototype.loose_screen = function () {
-        alert('You loose');
-        // Reload the page
-        location.reload();
+        this.canvas.style.display = 'none';
+        document.getElementById('loose').style.display = 'block';
     };
     Game.prototype.win_screen = function () {
-        alert('You win');
-        // Reload the page
-        location.reload();
+        this.canvas.style.display = 'none';
+        document.getElementById('win').style.display = 'block';
     };
     return Game;
 }());
@@ -273,6 +279,7 @@ function load_game() {
     var title_header = document.getElementsByTagName('header')[0];
     title_header.style.display = 'none';
     // Loads the game
+    document.getElementsByTagName('canvas')[0].style.display = 'block';
     var game = new Game(document.getElementsByTagName('canvas')[0]);
     game.start_game();
 }

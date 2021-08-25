@@ -45,14 +45,28 @@ canvas {
   width: 100vw;
   top: 50vh;
   left: 50vw;
+  cursor: none;
+  display: none;
 }
 
 .game-over {
   display: none;
+  transform: translate(-50%, -50%);
+  position: fixed;
+  top: 50vh;
+  left: 50vw;
+  z-index: 5;
+  font-size: 10vmin;
+  text-align: center;
   .lost {
     color: red;
   }
   .won {
     color: green;
+  }
+
+  a {
+    text-decoration: dotted underline;
+    font-size: 7.5vmin;
   }
 }

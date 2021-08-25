@@ -46,7 +46,7 @@ class Player {
   private ctx: CanvasRenderingContext2D;
   private img: HTMLImageElement;
   public shots: Shot[] = [];
-  private static shootingSpead = 60 * 1; // in frames
+  private static shootingSpead = 60 * 0.75; // in frames
   private shootingCounter = 0;
 
   draw() {
@@ -164,7 +164,13 @@ class Shot {
         this.position.y <= enemy.position.y + enemy.size
       ) {
         collided = true;
-        enemy.health -= 10 * (maxWaves / wave);
+        if (wave <= maxWaves / 3) {
+          enemy.health -= 101;
+        } else if (wave <= (maxWaves / 3) * 2) {
+          enemy.health -= 51;
+        } else {
+          enemy.health -= 34;
+        }
         if (enemy.health <= 0) {
           enemies.splice(enemies.indexOf(enemy), 1);
           if (wave == maxWaves && enemies.length === 0) {
@@ -199,7 +205,7 @@ class Game {
   }
 
   public start_game() {
-    const waves = 10;
+    const waves = 6;
     let wave = 1;
     const spawn_rate = 60 * 15; // in framess
     let spawn_rate_counter = 0;
@@ -211,7 +217,7 @@ class Game {
 
       // Spawns enemies
       if (spawn_rate_counter >= spawn_rate) {
-        if (wave <= waves) {
+        if (wave < waves) {
           this.create_enemies();
           wave++;
           spawn_rate_counter = 0;
@@ -275,15 +281,13 @@ class Game {
   }
 
   private loose_screen() {
-    alert('You loose');
-    // Reload the page
-    location.reload();
+    this.canvas.style.display = 'none';
+    document.getElementById('loose')!.style.display = 'block';
   }
 
   private win_screen() {
-    alert('You win');
-    // Reload the page
-    location.reload();
+    this.canvas.style.display = 'none';
+    document.getElementById('win')!.style.display = 'block';
   }
 }
 
@@ -308,6 +312,7 @@ function load_game() {
   title_header.style.display = 'none';
 
   // Loads the game
+  (document.getElementsByTagName('canvas')[0] as HTMLCanvasElement).style.display = 'block';
   let game = new Game(document.getElementsByTagName('canvas')[0] as HTMLCanvasElement);
   game.start_game();
 }
