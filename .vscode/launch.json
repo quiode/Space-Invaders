@@ -10,8 +10,8 @@
       "reAttach": false,
       "name": "Launch index.html",
       "file": "${workspaceFolder}/index.html",
-      "preLaunchTask": "Build_Web",
-      "postDebugTask": "Build_Web"
+      "preLaunchTask": "Build_Web"
+      // "postDebugTask": "Build_Web"
     }
   ]
 }

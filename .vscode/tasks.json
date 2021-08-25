@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "sass",
+      "type": "shell",
+      "command": "sass style.scss:style.css",
+      "options": {
+        "cwd": "${workspaceFolder}/styles"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "never",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": true,
+        "clear": true
+      }
+    },
+    {
+      "label": "tsc",
+      "type": "shell",
+      "command": "tsc",
+      "options": {
+        "cwd": "${workspaceFolder}/scripts"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "never",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": true,
+        "clear": true
+      }
+    },
+    {
+      "label": "Build_Web",
+      "dependsOn": ["sass", "tsc"]
+    }
+  ]
+}
