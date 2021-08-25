@@ -3,6 +3,10 @@ type position = {
   y: number;
 };
 
+// Game Event
+const win_event = new CustomEvent('game_won');
+const loose_event = new CustomEvent('game_lost');
+
 class Player {
   constructor(
     private canvas: HTMLCanvasElement,
@@ -12,31 +16,82 @@ class Player {
     this.ctx = canvas.getContext('2d')!;
     this.img = new Image();
     this.img.src = this.img_url;
+    // For controls
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+        this.shouldMove = true;
+        this.direction = false;
+      } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+        this.shouldMove = true;
+        this.direction = true;
+      }
+    });
+    document.addEventListener('keyup', (e: KeyboardEvent) => {
+      if (
+        e.code === 'ArrowLeft' ||
+        e.code === 'KeyA' ||
+        e.code === 'ArrowRight' ||
+        e.code === 'KeyD'
+      ) {
+        this.shouldMove = false;
+      }
+    });
   }
+  private shouldMove: boolean = false; // if player moves
+  /**
+   * true = right
+   */
+  private direction: boolean = false; // direction = true -> right
   private img_url = 'assets/player.png';
   private ctx: CanvasRenderingContext2D;
   private img: HTMLImageElement;
-  private shots: Shot[] = [];
+  public shots: Shot[] = [];
+  private static shootingSpead = 60 * 1; // in frames
+  private shootingCounter = 0;
 
   draw() {
+    // Moves the player
+    this.move();
+
     // Draws the player
     this.ctx.drawImage(this.img, this.position.x, this.position.y, this.size, this.size);
 
     // Makes a shot
-    this.shoot();
+    if (this.shootingCounter >= Player.shootingSpead) {
+      this.shoot();
+      this.shootingCounter = 0;
+    }
+    this.shootingCounter++;
   }
 
   private shoot() {
     // Makes a shot
-    this.shots.push(new Shot(this.canvas, this.position));
+    this.shots.push(
+      new Shot(this.canvas, {
+        x: this.position.x + this.size / 2,
+        y: this.position.y - this.size / 2,
+      })
+    );
+  }
+
+  private move() {
+    const step = 1;
+    const buffer = this.size / 5;
+    if (this.shouldMove) {
+      if (this.direction && this.position.x + this.size < this.canvas.width - buffer) {
+        this.position.x += step;
+      } else if (!this.direction && this.position.x > 0 + buffer) {
+        this.position.x -= step;
+      }
+    }
   }
 }
 
 class Enemy {
   constructor(
     private canvas: HTMLCanvasElement,
-    private size: number,
-    private position: position = { x: 0, y: 0 }
+    public size: number,
+    public position: position = { x: 0, y: 0 }
   ) {
     this.ctx = this.canvas.getContext('2d')!;
     this.img = new Image();
@@ -46,6 +101,7 @@ class Enemy {
   private img: HTMLImageElement;
   private go_left = false;
   private ctx: CanvasRenderingContext2D;
+  public health = 100;
 
   move() {
     let step = 0.25;
@@ -62,6 +118,9 @@ class Enemy {
 
     // Moves the enemy
     this.position.x += this.go_left ? -step : step;
+    if (this.position.y > (this.canvas.height / 10) * 8) {
+      document.dispatchEvent(loose_event);
+    }
     this.draw();
   }
 
@@ -72,30 +131,64 @@ class Enemy {
 }
 
 class Shot {
-  ctx: CanvasRenderingContext2D;
+  private ctx: CanvasRenderingContext2D;
   constructor(private canvas: HTMLCanvasElement, private position: position = { x: 0, y: 0 }) {
     this.ctx = this.canvas.getContext('2d')!;
   }
+  private strokeLength = 10;
 
   private draw() {
     // Draws the shot
+    this.ctx.beginPath();
     this.ctx.moveTo(this.position.x, this.position.y);
-    this.ctx.lineWidth = 5;
+    this.ctx.lineWidth = 2;
     // stroke style red in hex
     this.ctx.strokeStyle = '#ff0000';
-    this.ctx.lineTo(this.position.x, this.position.y + 10);
+    this.ctx.lineTo(this.position.x, this.position.y + this.strokeLength);
+    this.ctx.stroke();
   }
 
   move() {
-    this.position.y += 1;
+    this.position.y -= 1;
     this.draw();
+  }
+
+  collisionCheck(enemies: Enemy[], wave: number, maxWaves: number) {
+    // Checks if the shot has collided with an enemy
+    let collided = false;
+    enemies.forEach((enemy) => {
+      if (
+        this.position.x >= enemy.position.x &&
+        this.position.x <= enemy.position.x + enemy.size &&
+        this.position.y >= enemy.position.y &&
+        this.position.y <= enemy.position.y + enemy.size
+      ) {
+        collided = true;
+        enemy.health -= 10 * (maxWaves / wave);
+        if (enemy.health <= 0) {
+          enemies.splice(enemies.indexOf(enemy), 1);
+          if (wave == maxWaves && enemies.length === 0) {
+            document.dispatchEvent(win_event);
+          }
+        }
+      }
+    });
+    return collided;
   }
 }
 
 class Game {
   private context = this.canvas.getContext('2d');
   private background_img = new Image();
-  constructor(private canvas: HTMLCanvasElement) {}
+  constructor(private canvas: HTMLCanvasElement) {
+    // Subscribe to events
+    document.addEventListener('game_won', () => {
+      this.win_screen();
+    });
+    document.addEventListener('game_lost', () => {
+      this.loose_screen();
+    });
+  }
   player!: Player;
   enemies: Enemy[] = [];
 
@@ -106,16 +199,38 @@ class Game {
   }
 
   public start_game() {
+    const waves = 10;
+    let wave = 1;
+    const spawn_rate = 60 * 15; // in framess
+    let spawn_rate_counter = 0;
+
     this.load_game();
     // Game loup
     let loop = setInterval(() => {
       this.clear();
+
+      // Spawns enemies
+      if (spawn_rate_counter >= spawn_rate) {
+        if (wave <= waves) {
+          this.create_enemies();
+          wave++;
+          spawn_rate_counter = 0;
+        }
+      }
+      spawn_rate_counter++;
 
       this.draw_background();
       this.enemies.forEach((enemy) => {
         enemy.move();
       });
       this.player.draw();
+      this.player.shots.forEach((shot) => {
+        if (shot.collisionCheck(this.enemies, wave, waves)) {
+          this.player.shots.splice(this.player.shots.indexOf(shot), 1);
+        } else {
+          shot.move();
+        }
+      });
     }, 1000 / 60);
   }
 
@@ -157,6 +272,18 @@ class Game {
 
   private clear() {
     this.context?.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  private loose_screen() {
+    alert('You loose');
+    // Reload the page
+    location.reload();
+  }
+
+  private win_screen() {
+    alert('You win');
+    // Reload the page
+    location.reload();
   }
 }
 

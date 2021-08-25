@@ -45,4 +45,14 @@ canvas {
   left: 50vw;
 }
 
+.game-over {
+  display: none;
+}
+.game-over .lost {
+  color: red;
+}
+.game-over .won {
+  color: green;
+}
+
 /*# sourceMappingURL=style.css.map */

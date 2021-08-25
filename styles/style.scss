@@ -46,3 +46,13 @@ canvas {
   top: 50vh;
   left: 50vw;
 }
+
+.game-over {
+  display: none;
+  .lost {
+    color: red;
+  }
+  .won {
+    color: green;
+  }
+}
